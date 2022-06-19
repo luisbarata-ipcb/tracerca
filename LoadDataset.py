@@ -1,5 +1,6 @@
 
 import pandas as pd
+from pandas import dt
 import time
 import datetime
 
@@ -7,7 +8,7 @@ from requests import head
 
 # Load Dataset
 
-data= pd.read_csv("Dataset/rca_2020_04_21.csv")
+data= pd.read_csv("C:/GIT/Dataset/rca_2020_04_21.csv")
 
 data
 
@@ -18,7 +19,7 @@ data.sort_values("timestamp")
 
 # Data Processing
 
-# Get distinct values of sources ans destinations
+# Get distinct values of sources and destinations
 
 df_source = data.drop_duplicates(subset = ["source"])
 df_source
@@ -40,11 +41,68 @@ new_result = new_result.replace(
     {'source':{'None':0}}
 )
 
-new_result.head(10)
+new_result.head(1)
 
 
 print(new_result)
 
+
+# Cria novas Features
+
+# Latencia X Target
+
+new_result['LatxTarget'] = new_result['latency'] * new_result['target']
+
+
+# Latencia X Source
+
+
+
+# Nova coluna formato Data
+
+from datetime import datetime, timedelta
+timestamp = 1587398400084
+timestamp = str(timestamp)
+timestamp = (timestamp[0:10])
+timestamp = int(timestamp)
+dt_object = datetime.fromtimestamp(timestamp)
+
+print("dt_object =", dt_object)
+print("type(dt_object) =", type(dt_object))
+
+print(dt_object + timedelta(hours=8))
+
+# Função para transformar Timestamp em Data
+
+def my_timestamp_date(times):
+    #timestamp = str(times)
+    #timestamp = (timestamp[0:10])
+    #timestamp = int(timestamp)
+
+    timestamp = int(times) / 1000.0
+
+    dt_object = datetime.fromtimestamp(timestamp)
+
+    #print("dt_object =", dt_object)
+    #print(dt_object + timedelta(hours=7))
+ #   return str(dt_object + timedelta(hours=7))
+    return (dt_object + timedelta(hours=7))
+    
+teste = my_timestamp_date(1587398400118)
+teste
+
+my_timestamp_date("1587398400084")
+
+new_result['data'] = (new_result['timestamp'])
+new_result['data'] = datetime.fromtimestamp(new_result['data'])
+
+
+
+new_result['data'] = my_timestamp_date(new_result['timestamp'])
+
+new_result.head(10)
+
+# Matriz de Correlação
 
 matrix = new_result.corr()
 print(matrix)
@@ -58,7 +116,7 @@ sns.heatmap(matrix, annot=True, vmax=1, vmin=-1, center=0, cmap='vlag')
 plt.show()
 
 
-new_result['LatxTarget'] = new_result['latency'] * new_result['target']
+
 
 
 from pyod.models.knn import KNN
